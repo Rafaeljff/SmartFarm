@@ -20,24 +20,14 @@ import asyncio
 import aiocoap.resource as resource
 import aiocoap
 
-savedResource2="empty1"
-savedResource = "empty"
 
-temp1_1="empty1"
-temp1_2 = "empty"
-temp1_3 = "empty"
+savedResource="empty"
+temp1= "empty"
+temp2 = "empty"
+temp3 = "empty"
 hum = "empty"
 soil= "empty"
-
-temp2_1="empty1"
-pressure="empty1"
-altitude="empty"
-
-
-
-
-
-
+mensagem=""
 
 class BlockResource(resource.Resource):
     """Example resource which supports the GET and PUT methods. It sends large
@@ -112,80 +102,77 @@ class TimeResource(resource.ObservableResource):
                 strftime("%Y-%m-%d %H:%M").encode('ascii')
         return aiocoap.Message(payload=payload)
 
-
-class ResourceManager(resource.Resource):
+    
+class LocalProcessing(resource.Resource):
     def __init__(self):
         super().__init__()
-        self._savedResource = "empty"
-
-    async def render_get(self, request):
+        self._savedResource="empty"
+    
+    async def render_get(self, request): 
+        value=int(mensagem)
+        print("mensagemeeeeeeeeeeeeeeeeeee"+mensagem)    
+        if value > 30 :
+            self._savedResource="atuador_on"
+        elif value < 30  :
+            self._savedResource="atuador_off"
+        else:
+            self._savedResource="inconcrete"
         return aiocoap.Message(content_format=0,
                 payload=self._savedResource.encode('utf8'))
+
+    #async def render_put(self, request):
+     #   self._savedResource2 = request.payload.decode("utf8")
+      #  return aiocoap.Message(content_format=0,
+       #         payload="OK".encode('utf8'))
+
     
-    async def render_put(self, request):
-        self._savedResource = request.payload.decode("utf8")
-        return aiocoap.Message(content_format=0,
-                payload="OK".encode('utf8'))
-    
-class ResourceManager2(resource.Resource):
+class ResourceTemperature1(resource.Resource):
     def __init__(self):
         super().__init__()
-        self._savedResource2 = "empty1"
-
+        self._temp1="empty"
+        
+   
     async def render_get(self, request):
-        return aiocoap.Message(content_format=0,
-                payload=self._savedResource2.encode('utf8'))
-    
-    async def render_put(self, request):
-        self._savedResource2 = request.payload.decode("utf8")
-        return aiocoap.Message(content_format=0,
-                payload="OK".encode('utf8'))
 
-    
-class Resource_t_1_1(resource.Resource):
-    def __init__(self):
-        super().__init__()
-        self._temp1_1= "empty"
-
-    async def render_get(self, request):
         return aiocoap.Message(content_format=0,
-                payload=self._temp1_1.encode('utf8'))
-    
+                payload=self._temp1.encode('utf8'))
     async def render_put(self, request):
-        self._temp1_1== request.payload.decode("utf8")
+        global mensagem
+        self._temp1= request.payload.decode("utf8")
+        mensagem=self._temp1
         return aiocoap.Message(content_format=0,
                 payload="received temperature of sensor 1".encode('utf8'))
 
-class Resource_t_1_2(resource.Resource):
+class ResourceTemperature2(resource.Resource):
     def __init__(self):
         super().__init__()
-        self._temp1_2= "empty"
+        self._temp2= "empty"
 
     async def render_get(self, request):
         return aiocoap.Message(content_format=0,
-                payload=self.temp1_2.encode('utf8'))
+                payload=self._temp2.encode('utf8'))
     
     async def render_put(self, request):
-        self._temp1_2== request.payload.decode("utf8")
+        self._temp2= request.payload.decode("utf8")
         return aiocoap.Message(content_format=0,
                 payload="received temperature of sensor 2".encode('utf8'))
 
 
-class Resource_t_1_3(resource.Resource):
+class ResourceTemperature3(resource.Resource):
     def __init__(self):
         super().__init__()
-        self._temp1_3= "empty"
+        self._temp3= "empty"
 
     async def render_get(self, request):
         return aiocoap.Message(content_format=0,
-                payload=self._temp1_3.encode('utf8'))
+                payload=self._temp3.encode('utf8'))
     
     async def render_put(self, request):
-        self._temp1_3== request.payload.decode("utf8")
+        self._temp3= request.payload.decode("utf8")
         return aiocoap.Message(content_format=0,
                 payload="received temperature of sensor 3".encode('utf8'))
 
-class Resource_hum(resource.Resource):
+class ResourcePressure(resource.Resource):
     def __init__(self):
         super().__init__()
         self._hum= "empty"
@@ -195,21 +182,21 @@ class Resource_hum(resource.Resource):
                 payload=self._hum.encode('utf8'))
     
     async def render_put(self, request):
-        self._hum== request.payload.decode("utf8")
+        self.hum= request.payload.decode("utf8")
         return aiocoap.Message(content_format=0,
                 payload="received humity ".encode('utf8'))
 
-class Resource_soil(resource.Resource):
+class ResourceSoil(resource.Resource):
     def __init__(self):
         super().__init__()
-        self._soil= "empty"
+        self._soil="empty"
 
     async def render_get(self, request):
         return aiocoap.Message(content_format=0,
                 payload=self._soil.encode('utf8'))
     
     async def render_put(self, request):
-        self._soil== request.payload.decode("utf8")
+        self._soil=request.payload.decode('utf8')
         return aiocoap.Message(content_format=0,
                 payload="received soil moisture".encode('utf8'))
 
@@ -231,11 +218,11 @@ class WhoAmI(resource.Resource):
                 payload="\n".join(text).encode('utf8'))
 
 # logging setup
-
 logging.basicConfig(level=logging.INFO)
 logging.getLogger("coap-server").setLevel(logging.DEBUG)
 
 async def main():
+
     # Resource tree creation
     root = resource.Site()
 
@@ -245,13 +232,12 @@ async def main():
     root.add_resource(['other', 'block'], BlockResource())
     root.add_resource(['other', 'separate'], SeparateLargeResource())
     root.add_resource(['whoami'], WhoAmI())
-    root.add_resource(['manager_temp1'], Resource_t_1_1())
-    root.add_resource(['manager_temp2'], Resource_t_1_2())
-    root.add_resource(['manager_temp3'], Resource_t_1_3())
-    root.add_resource(['manager_hum'], Resource_hum())
-    root.add_resource(['manager_soil'], Resource_soil())
-    
-   
+    root.add_resource(['managertemp1'], ResourceTemperature1())
+    root.add_resource(['managertemp2'], ResourceTemperature2())
+    root.add_resource(['managertemp3'], ResourceTemperature3())
+    root.add_resource(['managerpressure'], ResourcePressure())
+    root.add_resource(['managersoil'], ResourceSoil())
+    root.add_resource(['manager'],LocalProcessing())
     await aiocoap.Context.create_server_context(root)
 
     # Run forever
