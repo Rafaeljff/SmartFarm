@@ -1,5 +1,4 @@
 #include "Arduino.h"
-
 #include <Bridge.h>
 #include <BridgeClient.h>
 #include <MQTT.h>
@@ -15,6 +14,8 @@ int LDR1 = A2; // topico 1.2.1
 int LDR2 = A3; //topico 1.2.2
 int LM35 = A1; // topico 1.3.1
 int DHTPIN = 8; // topico 1.3.2-1.4
+int Red_led = 10; // topico 1.3.2-1.4
+int Green_led = 9; // topico 1.3.2-1.4
 
 float soil_1_1_1 = 0;
 float soil_1_1_2 = 0;
@@ -49,26 +50,30 @@ float intercept = -0.72; // intercept from linear fit
 #define RESOLUTION 1023
 
 void connect() {
-	String payload;
+
 	Serial.print("connecting...");
-	while (!client.connect("10.20.228.23", "Rafaeljff", "ciic")) {
+	while (!client.connect("192.168.1.5", "Rafaeljff", "ciic")) {
 		Serial.print(".");
 		delay(1000);
 	}
+	client.subscribe("buzzer1_topic");
 
-	Serial.println("\nconnected!");
-
-	client.subscribe(topic);
-	client.onMessage(callback);
 }
 
-void callback(String &topic, String &payload)
-{
+void callback(String &topic, String &payload) {
+	client.subscribe("buzzer1_topic");
+	Serial.print("Message received from MQTT broker of topic:");
+	Serial.println(topic);
+	Serial.print("Message:");
+	Serial.println(payload);
 
-
-	  Serial.println("sssssssssssssssssssssssssssssss");
-    Serial.println(topic);
-    Serial.println(payload);
+	if (payload == "temp_is_ok") {
+		digitalWrite(Green_led, HIGH);
+		digitalWrite(Red_led, LOW);
+	} else if (payload == "temp_is_above_30") {
+		digitalWrite(Green_led, LOW);
+		digitalWrite(Red_led, HIGH);
+	}
 }
 
 void setup() {
@@ -79,7 +84,7 @@ void setup() {
 	Serial.print(c);
 	// Note: Local domain names (e.g. "Computer.local" on OSX) are not supported
 	// by Arduino. You need to set the IP address directly.
-	client.begin("10.20.228.23", 1883, net);
+	client.begin("192.168.1.5", 1883, net);
 //	client.subscribe("/buzzer1_topic",2);
 	//client.onMessage(messageReceived);
 	connect();
@@ -90,7 +95,9 @@ void setup() {
 	pinMode(LDR1, INPUT);
 	pinMode(LDR2, INPUT);
 	pinMode(LM35, INPUT);
-
+	pinMode(LM35, INPUT);
+	pinMode(Green_led, OUTPUT);
+	pinMode(Red_led, OUTPUT);
 	//DHT11 temperature and humity sensors
 	dht.begin();
 	//analogReference(0); // set the analog reference to 3.3V
@@ -103,19 +110,21 @@ void setup() {
 void loop() {
 	Serial.println("New Loop");
 	Process wifiCheck;
-	String t;
+
 	lastMillis = millis();
 	wifiCheck.runShellCommand("/usr/bin/pretty-wifi-info.lua"); //
 	char c = wifiCheck.read();
 	Serial.print(c);
 	client.loop();
 
+	client.onMessage(callback);
 
 	//client.returnCode();
 
 	if (!client.connected()) {
 		connect();
 	}
+
 
 
 	temperature_humity();
@@ -164,8 +173,7 @@ void loop() {
 			publish = "";
 			publish.concat(humity_1_4);
 			client.publish("topic1/4/0", publish);
-client.subscribe(topic);
-client.onMessageAdvanced(callback);
+
 		}
 	}
 
