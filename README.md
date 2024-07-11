@@ -13,3 +13,12 @@
 
 
 #attacks documentation.txt is the documentation and procedures of the cyber atacks made to the system.
+
+**The system was implemented following the real scenario:**
+
+![Smartfarm drawio](https://github.com/Rafaeljff/SmartFarm/assets/45770575/fe61c642-b1a6-43f0-afa2-059587ae05e5)
+
+
+Actual implementation, cyberattacks and data capture:
+
+![devices drawio (1)](https://github.com/Rafaeljff/SmartFarm/assets/45770575/dfb76e28-8946-46be-86c4-165095a88a6d)
