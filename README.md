@@ -2,13 +2,13 @@
 
 
 
-# Server files configured on Raspberry Pi 4
-## CoAP_server.py 
+## Server files configured on Raspberry Pi 4
+### CoAP_server.py 
 file is the script on python that is being running on the raspberry py for the CoAP server.
-## Node-red-flows.json 
+### Node-red-flows.json 
 flows used to make the configuration of the simulation scenario data processing and data visualization
 
-# Microcontrollers
+## Microcontrollers
  this code is configurated to the devices and Network of the simulation environment
 
 ### ESP32_CoAP  
@@ -21,8 +21,8 @@ arduino code sample for use MQTT client microcontrollers ESP8266(the code is sim
 e arduino code for YUN microcontoller that use MQTT as client.
 
 
-# attacks documentation.txt  
-documentation and procedures of the cyber atacks made to the system.
+## attacks documentation.txt  
+documentation and procedures of the cyberatacks made to the system.
 
 
 
