@@ -1,10 +1,11 @@
-## SmartFarm
+# SmartFarm Project
 
 
-##Servers
-#CoAP_server.py 
+
+# Server files configured on Raspberry Pi 4
+## CoAP_server.py 
 file is the script on python that is being running on the raspberry py for the CoAP server.
-#Node-red-flows.json 
+## Node-red-flows.json 
 flows used to make the configuration of the simulation scenario data processing and data visualization
 
 # Microcontrollers
